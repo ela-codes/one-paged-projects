@@ -50,7 +50,6 @@ class Tree {
     }
     
     createSubTrees(arr, root) {
-        console.log(`Creating subtrees ${JSON.stringify(root)}`)
         if (arr.length < 1) return null
         
         const midIdx = Math.floor((arr.length-1)/2)
@@ -95,36 +94,35 @@ class Tree {
     }
 
     delete(value, node = this.root, prev = null, direction = null) {
+        if (node.data === value) { // if node is found
+            if (node.left === null && node.right === null) {
+                prev.left = null
+                prev.right = null
 
-            if (node.data === value) { // if node is found
-                if (node.left === null && node.right === null) {
-                    prev.left = null
-                    prev.right = null
+            } else if (node.left === null || node.right === null) {
+                let targetNode = null;
 
-                } else if (node.left === null || node.right === null) {
-                    let targetNode = null;
+                node.left ? targetNode = node.left : targetNode = node.right;
+                direction === 'left' ? prev.left = targetNode : prev.right = targetNode;
 
-                    node.left ? targetNode = node.left : targetNode = node.right;
-                    direction === 'left' ? prev.left = targetNode : prev.right = targetNode;
-
-                } else { // two child nodes exist
-                    const childrenArray = this.getInorderArray(node.left).concat(this.getInorderArray(node.right))
-                    console.log(Math.floor(childrenArray.length/2))
-                    console.log(childrenArray)
-                    this.createSubTrees(childrenArray, prev)
-                }
-            }
-
-            else if (node) { // searching the tree
-                if (value < node.data) {
-                    console.log(value, ' is less than', node.data)
-                    this.delete(value, node.left, node, 'left')
-                } else if (value > node.data) {
-                    console.log(value, ' is greater than', node.data)
-                    this.delete(value, node.right, node, 'right')
-                }
+            } else { // two child nodes exist
+                const childrenArray = this.getInorderArray(node.left).concat(this.getInorderArray(node.right))
+                console.log(Math.floor(childrenArray.length/2))
+                console.log(childrenArray)
+                this.createSubTrees(childrenArray, prev)
             }
         }
+
+        else if (node) { // searching the tree
+            if (value < node.data) {
+                console.log(value, ' is less than', node.data)
+                this.delete(value, node.left, node, 'left')
+            } else if (value > node.data) {
+                console.log(value, ' is greater than', node.data)
+                this.delete(value, node.right, node, 'right')
+            }
+        }
+    }
 
     getInorderArray(root, resultArr = []) {
         if (root === null) return null
@@ -135,8 +133,29 @@ class Tree {
 
         return resultArr
     }
-}
 
+    find(value, node = this.root) {
+        if (node && node.data === value) return node
+
+        if (value < node.data) return this.find(value, node.left)
+        else if (value > node.data) return this.find(value, node.right)
+    }
+
+    levelOrder(node = this.root , queue = [this.root], result = []) {
+        // traverse the tree in breadth-first level order
+        // for each discovered node, run it through the function as an argument
+        if (queue.length > 0) {
+            if (node.left) queue.push(node.left)
+            if (node.right) queue.push(node.right)
+            result.push(queue.shift().data)
+            this.levelOrder(queue[0], [...queue], [...result])
+        }
+        else if (queue.length === 0) {
+            console.log(result)
+        }
+    }
+}
+ 
 
 function prettyPrint(node, prefix = '', isLeft = true) {
     if (node === null) return
@@ -154,8 +173,6 @@ function prettyPrint(node, prefix = '', isLeft = true) {
 
 
 
-
-
 // TEST CASES
 
 function getRandomNum(min = -100, max = 1000) {
@@ -165,7 +182,7 @@ function getRandomNum(min = -100, max = 1000) {
 
 function getRandomArray() {
         let randomArr = []
-        let randomSize = getRandomNum(0, 12)
+        let randomSize = getRandomNum(10, 20)
 
         while (randomSize > 0) {
             randomArr.push(getRandomNum(-100, 1000))
@@ -201,3 +218,11 @@ const tree = new Tree(myArray)
 prettyPrint(tree.root)
 randomInsert(tree, myArray)
 randomDelete(tree, myArray, tree.root.data)
+console.log(myArray[2], tree.find(myArray[4]))
+tree.levelOrder()
+
+
+// const test = [1, 345, 34, 23, 2, 6, 3, -4, 10, 8, 6]
+// const testTree = new Tree(test)
+// prettyPrint(testTree.root)
+// testTree.levelOrder()
