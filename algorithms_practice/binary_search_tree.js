@@ -106,7 +106,7 @@ class Tree {
                 direction === 'left' ? prev.left = targetNode : prev.right = targetNode;
 
             } else { // two child nodes exist
-                const childrenArray = this.getInorderArray(node.left).concat(this.getInorderArray(node.right))
+                const childrenArray = this.inorder(node.left).concat(this.inorder(node.right))
                 console.log(Math.floor(childrenArray.length/2))
                 console.log(childrenArray)
                 this.createSubTrees(childrenArray, prev)
@@ -124,16 +124,6 @@ class Tree {
         }
     }
 
-    getInorderArray(root, resultArr = []) {
-        if (root === null) return null
-        
-        this.getInorderArray(root.left, resultArr)
-        resultArr.push(root.data)
-        this.getInorderArray(root.right, resultArr)
-
-        return resultArr
-    }
-
     find(value, node = this.root) {
         if (node && node.data === value) return node
 
@@ -143,16 +133,68 @@ class Tree {
 
     levelOrder(node = this.root , queue = [this.root], result = []) {
         // traverse the tree in breadth-first level order
-        // for each discovered node, run it through the function as an argument
         if (queue.length > 0) {
             if (node.left) queue.push(node.left)
             if (node.right) queue.push(node.right)
-            result.push(queue.shift().data)
-            this.levelOrder(queue[0], [...queue], [...result])
+            result.push(queue.shift().data) // value from first in queue
+            return this.levelOrder(queue[0], [...queue], [...result])
+        } else if (queue.length === 0) {
+            return result
         }
-        else if (queue.length === 0) {
-            console.log(result)
-        }
+    }
+
+    inorder(root = this.root, result = []) {
+        if (root === null) return null
+        
+        this.inorder(root.left, result)
+        result.push(root.data)
+        this.inorder(root.right, result)
+
+        return result
+    }
+
+    preorder(root = this.root, result = []) {
+        if (root === null) return null
+
+        result.push(root.data)
+        this.preorder(root.left, result)
+        this.preorder(root.right, result)
+
+        return result
+    }
+
+    postorder(root = this.root, result = []) {
+        if (root === null) return null
+        
+        this.postorder(root.left, result)
+        this.postorder(root.right, result)
+        result.push(root.data)
+        
+        return result
+    }
+
+    height(node) {
+        //using BFS method
+        if (node === null) return 0
+        let height = 0;
+        let queue = [node]
+
+        while (queue.length > 0) {
+            console.log(queue)
+            for (let i = 0; i < queue.length; i++) {
+                let nextNode = queue.shift()
+                if (nextNode.left) queue.push(nextNode.left)
+                if (nextNode.right) queue.push(nextNode.right)
+            } height ++ 
+        } return height
+    }
+
+    depth(targetNode, root = this.root, depthCount = 0) {
+        if (targetNode.data === root.data) return depthCount
+        
+        depthCount++
+        if (targetNode.data < root.data) return this.depth(targetNode, root.left, depthCount)
+        else if (targetNode.data > root.data) return this.depth(targetNode, root.right, depthCount)
     }
 }
  
@@ -213,16 +255,50 @@ function randomDelete(tree, array, rootValue) {
     prettyPrint(tree.root)
 }
 
+function runTraversals(tree) {
+    console.log('Level Order: ', tree.levelOrder())
+    
+    console.log('Inorder: ', tree.inorder())
+    
+    console.log('Preorder: ', tree.preorder())
+    
+    console.log('Postorder: ', tree.postorder())
+}
+
+function randomFind(tree, array) {
+    const idx = getRandomNum(0, array.length-1)
+    const randomValueFromArr = array[idx]
+    console.log('Finding ', randomValueFromArr, '-> ', tree.find(randomValueFromArr))
+    return tree.find(randomValueFromArr)
+}
+
+function randomNodeHeight(tree, array) {
+    const randomNode = randomFind(tree, array)
+    console.log('Height of: ', randomNode.data, ' is ', tree.height(randomNode))
+}
+
+function randomNodeDepth(tree, array) {
+    const randomNode = randomFind(tree, array)
+    console.log('Depth of: ', randomNode.data, ' from root is ', tree.depth(randomNode))
+}
+
 const myArray = getRandomArray()
 const tree = new Tree(myArray)
 prettyPrint(tree.root)
 randomInsert(tree, myArray)
 randomDelete(tree, myArray, tree.root.data)
-console.log(myArray[2], tree.find(myArray[4]))
-tree.levelOrder()
+randomFind(tree, myArray)
+runTraversals(tree)
 
+randomNodeHeight(tree, myArray)
+randomNodeDepth(tree, myArray)
+
+ 
 
 // const test = [1, 345, 34, 23, 2, 6, 3, -4, 10, 8, 6]
 // const testTree = new Tree(test)
 // prettyPrint(testTree.root)
-// testTree.levelOrder()
+
+
+// randomNodeHeight(testTree, test)
+// randomNodeDepth(testTree, test)
