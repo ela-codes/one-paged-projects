@@ -16,14 +16,22 @@ class Tree {
         // input is an array (sorted or unsorted)
         // removes duplicates and sorts array, if not sorted
         // returns the root node of a balanced tree
+        function isSorted(arr) {
+            for (let i = 0; i < arr.length-2; i++) {
+                if (arr[i] > arr[i+1]) return false
+            } return true
+        }
 
         const noDuplicateArray = this.removeDuplicates(arr)
-        const properArray = this.quickSort(noDuplicateArray)
-        console.log(`Sorted array: ${properArray}`)
 
-        const tree = this.createRootandSubTrees(properArray)
+        if (!isSorted(noDuplicateArray)) {
+            const properArray = this.quickSort(noDuplicateArray)
+            return this.createRootandSubTrees(properArray)
+        } else {
+            return this.createRootandSubTrees(noDuplicateArray)
+        }
 
-        return tree
+
     }
 
     createRootandSubTrees(properArray) {
@@ -346,5 +354,4 @@ runBinarySearchTreeTests(tree, myArray)
 
   
 // Improvements:
-// if input array is already sorted, dont do quicksort
 // improve method of removing duplicates
