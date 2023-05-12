@@ -191,10 +191,14 @@ class Tree {
 
     depth(targetNode, root = this.root, depthCount = 0) {
         if (targetNode.data === root.data) return depthCount
-        
+
         depthCount++
         if (targetNode.data < root.data) return this.depth(targetNode, root.left, depthCount)
         else if (targetNode.data > root.data) return this.depth(targetNode, root.right, depthCount)
+    }
+
+    isBalanced() {
+        
     }
 }
  
