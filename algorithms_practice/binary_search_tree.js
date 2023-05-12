@@ -16,11 +16,25 @@ class Tree {
         // input is an array (sorted or unsorted)
         // removes duplicates and sorts array, if not sorted
         // returns the root node of a balanced tree
+        function isSorted(arr) {
+            for (let i = 0; i < arr.length-2; i++) {
+                if (arr[i] > arr[i+1]) return false
+            } return true
+        }
 
         const noDuplicateArray = this.removeDuplicates(arr)
-        const properArray = this.quickSort(noDuplicateArray)
-        console.log(`Sorted array: ${properArray}`)
 
+        if (!isSorted(noDuplicateArray)) {
+            const properArray = this.quickSort(noDuplicateArray)
+            return this.createRootandSubTrees(properArray)
+        } else {
+            return this.createRootandSubTrees(noDuplicateArray)
+        }
+
+
+    }
+
+    createRootandSubTrees(properArray) {
         const midIdx = Math.floor((properArray.length-1)/2)
         const rootNode = new Node(properArray[midIdx]) // create root node from middle array value
 
@@ -29,7 +43,6 @@ class Tree {
 
         return rootNode
     }
-
 
     removeDuplicates(arr) {
         return [...new Set(arr)]
@@ -115,10 +128,10 @@ class Tree {
 
         else if (node) { // searching the tree
             if (value < node.data) {
-                console.log(value, ' is less than', node.data)
+                // console.log(value, ' is less than', node.data)
                 this.delete(value, node.left, node, 'left')
             } else if (value > node.data) {
-                console.log(value, ' is greater than', node.data)
+                // console.log(value, ' is greater than', node.data)
                 this.delete(value, node.right, node, 'right')
             }
         }
@@ -180,7 +193,6 @@ class Tree {
         let queue = [node]
 
         while (queue.length > 0) {
-            console.log(queue)
             for (let i = 0; i < queue.length; i++) {
                 let nextNode = queue.shift()
                 if (nextNode.left) queue.push(nextNode.left)
@@ -197,8 +209,23 @@ class Tree {
         else if (targetNode.data > root.data) return this.depth(targetNode, root.right, depthCount)
     }
 
-    isBalanced() {
+    isBalanced(node = this.root) {
+        // difference of heights between left & right subtree of every node is not more than 1
+        let left = this.height(node.left)
+        let right = this.height(node.right)
+        let difference = Math.abs(left-right)
+
+        if (difference > 1) return false
         
+        if (node.left) this.isBalanced(node.left)
+        if (node.right) this.isBalanced(node.right)
+        
+        return true
+    }
+
+    rebalance() {
+        let orderedArray = this.inorder()
+        this.root = this.createRootandSubTrees(orderedArray)
     }
 }
  
@@ -237,72 +264,94 @@ function getRandomArray() {
         return randomArr
 }
 
-function randomInsert(tree, array) {
-    const num = getRandomNum()
-    console.log(`>>> Inserting ${num}.`)
-    tree.insert(num)
-    array.push(num)
-    prettyPrint(tree.root)
-}
 
-function randomDelete(tree, array, rootValue) {
-    function getRandomIndex() {
-        return getRandomNum(0, array.length-1)
+function runBinarySearchTreeTests(tree, array) {
+    
+    function randomInsert(minValue, maxValue) {
+        const num = getRandomNum(minValue, maxValue)
+        console.log(`>>> Inserting ${num}.`)
+        tree.insert(num)
+        array.push(num)
     }
 
-    const randomIdx = getRandomIndex()
-    if (array[randomIdx] === rootValue) randomDelete(tree, array, rootValue) //avoid deleting root
+    function randomDelete() {
+        let rootValue = tree.root.value
+        function getRandomIndex() {
+            return getRandomNum(0, array.length-1)
+        }
 
-    console.log(`>>> Deleting ${array[randomIdx]}.`)
-    tree.delete(array[randomIdx])
-    array.splice(randomIdx, 1)
-    prettyPrint(tree.root)
+        const randomIdx = getRandomIndex()
+        if (array[randomIdx] === rootValue) randomDelete(tree, array, rootValue) //avoid deleting root
+
+        console.log(`>>> Deleting ${array[randomIdx]}.`)
+        tree.delete(array[randomIdx])
+        array.splice(randomIdx, 1)
+        prettyPrint(tree.root)
+    }
+
+    function runTraversals() {
+        console.log('Level Order: ', tree.levelOrder())
+        
+        console.log('Inorder: ', tree.inorder())
+        
+        console.log('Preorder: ', tree.preorder())
+        
+        console.log('Postorder: ', tree.postorder())
+    }
+
+    function randomFind() {
+        const idx = getRandomNum(0, array.length-1)
+        const randomValueFromArr = array[idx]
+        console.log('Finding ', randomValueFromArr, '-> ', tree.find(randomValueFromArr))
+        return tree.find(randomValueFromArr)
+    }
+
+    function randomNodeHeight() {
+        const randomNode = randomFind(tree, array)
+        console.log('Height of: ', randomNode.data, ' is ', tree.height(randomNode))
+    }
+
+    function randomNodeDepth() {
+        const randomNode = randomFind(tree, array)
+        console.log('Depth of: ', randomNode.data, ' from root is ', tree.depth(randomNode))
+    }
+
+    function checkBalance() {
+        console.log('Balanced? ',tree.isBalanced())
+    }
+
+    function createUnbalancedTree() {
+        for (let i = 0; i < 3 ; i ++) {
+            randomInsert(1000, 5000)
+        }
+        prettyPrint(tree.root)
+    }
+
+    function rebalanceTree() {
+        tree.rebalance()
+        prettyPrint(tree.root)
+        checkBalance(tree)
+    }
+
+    randomInsert(-100, 100)
+    randomDelete(tree, myArray, tree.root.data)
+    randomFind()
+    runTraversals()
+    randomNodeHeight()
+    randomNodeDepth()
+    checkBalance()
+    createUnbalancedTree()
+    checkBalance()
+    rebalanceTree()
+    runTraversals()
 }
 
-function runTraversals(tree) {
-    console.log('Level Order: ', tree.levelOrder())
-    
-    console.log('Inorder: ', tree.inorder())
-    
-    console.log('Preorder: ', tree.preorder())
-    
-    console.log('Postorder: ', tree.postorder())
-}
-
-function randomFind(tree, array) {
-    const idx = getRandomNum(0, array.length-1)
-    const randomValueFromArr = array[idx]
-    console.log('Finding ', randomValueFromArr, '-> ', tree.find(randomValueFromArr))
-    return tree.find(randomValueFromArr)
-}
-
-function randomNodeHeight(tree, array) {
-    const randomNode = randomFind(tree, array)
-    console.log('Height of: ', randomNode.data, ' is ', tree.height(randomNode))
-}
-
-function randomNodeDepth(tree, array) {
-    const randomNode = randomFind(tree, array)
-    console.log('Depth of: ', randomNode.data, ' from root is ', tree.depth(randomNode))
-}
-
+// RUN TESTS
 const myArray = getRandomArray()
 const tree = new Tree(myArray)
 prettyPrint(tree.root)
-randomInsert(tree, myArray)
-randomDelete(tree, myArray, tree.root.data)
-randomFind(tree, myArray)
-runTraversals(tree)
+runBinarySearchTreeTests(tree, myArray)
 
-randomNodeHeight(tree, myArray)
-randomNodeDepth(tree, myArray)
-
- 
-
-// const test = [1, 345, 34, 23, 2, 6, 3, -4, 10, 8, 6]
-// const testTree = new Tree(test)
-// prettyPrint(testTree.root)
-
-
-// randomNodeHeight(testTree, test)
-// randomNodeDepth(testTree, test)
+  
+// Improvements:
+// improve method of removing duplicates
