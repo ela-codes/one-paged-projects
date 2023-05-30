@@ -1,13 +1,32 @@
-import ArrayDescription from "./analyzeArray";
+import analyzeArray from "./analyzeArray";
 
-const object = new ArrayDescription([1,8,3,4,2,6])
+const object = analyzeArray([1,8,3,4,2,6])
 const correctResult = {
     average: 4,
-    min: 1,
+    length: 6,
     max: 8,
-    length: 6
-  }
+    min: 1
+}
 
-test('correctly returns an object with avg, min, max, & length', () => {
-    expect(object).toBe(correctResult)
+const object2 = analyzeArray([1,-8,3,4,2,8])
+const correctResult2 = {
+    average: 2,
+    length: 6,
+    max: 8,
+    min: -8
+}
+
+const object3 = analyzeArray([-5, 2, '2'])
+
+test('using an array of numbers', () => {
+    expect(object).toEqual(correctResult)
+})
+
+test('using an array with positive and negative integers', () => {
+    expect(object2).toEqual(correctResult2)
+})
+
+
+test('correctly recognizes incorrect array input', () => {
+    expect(object3).toBe('Not a valid array')
 })

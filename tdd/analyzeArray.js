@@ -1,39 +1,65 @@
 class ArrayDescription {
     constructor(array) {
-        this.avg = this.getArrAverage(array)
-        this.min = this.getArrMin(array)
-        this.max = this.getArrMax(array)
+        this.average = this.getArrAverage(array)
         this.length = array.length
-        this.sortedArr = this.quickSort(array)
+        this.min = this.getArrMin(this.getSortedArray(array))
+        this.max = this.getArrMax(this.getSortedArray(array))
     }
 
     getArrAverage(array) {
         const sum = array.reduce((accum, currValue) => accum + currValue, 0)
-        return sum / array.length
+        return Math.round(sum / array.length)
     }
 
     getArrMin(array) {
-        return this.sortedArr[0]
+        return array[0]
     }
 
     getArrMax(array) {
-        return this.sortedArr[this.sortedArr.length-1]
+        return array[array.length-1]
     }
 
-    quickSort(array) { 
-        if (arr.length < 2) return arr
-    
-        let pivot = arr[arr.length-1] 
-    
-        const left = []
-        const right = []
-        for (let n of arr) {
-            if (n < pivot) left.push(n)
-            else if (n > pivot) right.push(n)
+    getSortedArray(array) {
+        function quickSort(arr) { 
+            if (arr.length < 2) return arr
+        
+            let pivot = arr[arr.length-1] 
+        
+            const left = []
+            const right = []
+            for (let n of arr) {
+                if (n < pivot) left.push(n)
+                else if (n > pivot) right.push(n)
+            }
+            return [].concat(quickSort(left),[pivot], quickSort(right))
         }
-        return [].concat(this.quickSort(left),[pivot], this.quickSort(right))
+        const sortedArr = quickSort(array)
+        return sortedArr
     }
 }
 
+function analyzeArray(array) {
+    function isValidArray(array) {
+        for (let i of array) { // must be all numbers
+            if (typeof i !== 'number') {
+                return false
+            }
+        }
 
-export default ArrayDescription
+
+        if (!Array.isArray(array)) return false // must be an array object
+    
+        return true
+    }
+
+    
+    if (isValidArray(array)) {
+        const analyzedArrayObj = new ArrayDescription(array)
+        return analyzedArrayObj
+    } else {
+        return 'Not a valid array'
+    }
+}
+
+export default analyzeArray
+
